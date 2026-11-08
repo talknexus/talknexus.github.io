@@ -67,7 +67,7 @@ export default function FriendsPage({
 
         <button
           onClick={onOpenAddFriend}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-500"
+          className="rounded-lg bg-[#0390fc] px-4 py-2 text-sm font-semibold hover:bg-[#0390fc]"
         >
           Add Friend
         </button>
@@ -142,7 +142,7 @@ export default function FriendsPage({
                   <button
                     disabled={requestLoading === friendship.id}
                     onClick={() => onRespondToRequest(friendship.id, true)}
-                    className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold hover:bg-indigo-500 disabled:opacity-50"
+                    className="rounded-lg bg-[#0390fc] px-3 py-2 text-sm font-semibold hover:bg-[#0390fc] disabled:opacity-50"
                   >
                     Accept
                   </button>

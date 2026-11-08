@@ -100,7 +100,7 @@ export default function SpaceRail({
       <button
         onClick={onHome}
         title="Home"
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-600 text-xl font-bold hover:bg-indigo-500"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0390fc] text-xl font-bold hover:bg-[#0390fc]"
       >
         N
       </button>
@@ -130,7 +130,7 @@ export default function SpaceRail({
                     : 'scale-0'
                 } ${
                   active
-                    ? 'rounded-2xl ring-2 ring-indigo-500'
+                    ? 'rounded-2xl ring-2 ring-[#0390fc]'
                     : 'hover:rounded-2xl'
                 }`}
               >
@@ -153,7 +153,7 @@ export default function SpaceRail({
       {/* Create or join a Space */}
       <button
         title="Create or join a Space"
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#292a30] text-lg hover:bg-indigo-600"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#292a30] text-lg hover:bg-[#0390fc]"
       >
         +
       </button>

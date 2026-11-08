@@ -21,7 +21,7 @@ export default function Avatar({ person, size = 'w-10 h-10' }: AvatarProps) {
 
   return (
     <div
-      className={`${size} rounded-full bg-indigo-600 flex items-center justify-center text-white font-semibold shrink-0`}
+      className={`${size} rounded-full bg-[#0390fc] flex items-center justify-center text-white font-semibold shrink-0`}
     >
       {initial}
     </div>

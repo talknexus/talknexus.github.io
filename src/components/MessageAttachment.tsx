@@ -287,7 +287,7 @@ export default function MessageAttachment({ message }: Props) {
           <a
             href={url}
             download={name}
-            className="shrink-0 rounded-md bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500"
+            className="shrink-0 rounded-md bg-[#0390fc] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0390fc]"
           >
             Download
           </a>
@@ -313,7 +313,7 @@ export default function MessageAttachment({ message }: Props) {
           <a
             href={url}
             download={name}
-            className="ml-3 text-xs text-indigo-400 hover:text-indigo-300"
+            className="ml-3 text-xs text-[#0390fc] hover:text-[#0390fc]"
           >
             Download
           </a>
@@ -327,7 +327,7 @@ export default function MessageAttachment({ message }: Props) {
           <button
             type="button"
             onClick={() => setExpanded((value) => !value)}
-            className="border-t border-[#41434c] px-3 py-2 text-xs text-indigo-400"
+            className="border-t border-[#41434c] px-3 py-2 text-xs text-[#0390fc]"
           >
             {expanded ? 'Show less' : 'Show more'}
           </button>
@@ -353,7 +353,7 @@ export default function MessageAttachment({ message }: Props) {
         <a
           href={url}
           download={name}
-          className="rounded-md bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500"
+          className="rounded-md bg-[#0390fc] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0390fc]"
         >
           Download
         </a>

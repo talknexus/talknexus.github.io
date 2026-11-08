@@ -317,7 +317,7 @@ function Settings() {
                       className="h-20 w-20 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600 text-3xl font-bold">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#0390fc] text-3xl font-bold">
                       {displayName.charAt(0).toUpperCase() || '?'}
                     </div>
                   )}

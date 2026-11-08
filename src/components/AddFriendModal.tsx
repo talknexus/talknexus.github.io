@@ -50,7 +50,7 @@ export default function AddFriendModal({
             onChange={(event) => setUsername(event.target.value)}
             placeholder="username"
             maxLength={24}
-            className="mt-4 w-full rounded-lg border border-[#34353d] bg-[#17181c] px-4 py-3 text-white outline-none focus:border-indigo-500"
+            className="mt-4 w-full rounded-lg border border-[#34353d] bg-[#17181c] px-4 py-3 text-white outline-none focus:border-[#0390fc]"
           />
 
           {error && (
@@ -73,7 +73,7 @@ export default function AddFriendModal({
             <button
               type="submit"
               disabled={adding}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-500 disabled:opacity-50"
+              className="rounded-lg bg-[#0390fc] px-4 py-2 text-sm font-semibold hover:bg-[#0390fc] disabled:opacity-50"
             >
               {adding ? 'Sending...' : 'Send Request'}
             </button>

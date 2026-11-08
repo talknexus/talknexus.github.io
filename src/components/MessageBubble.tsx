@@ -187,7 +187,7 @@ function ReactionBar({
               aria-label={`${reaction.emoji}, ${reaction.count} reactions`}
               className={`flex h-7 items-center gap-1.5 rounded-md border px-2 text-xs transition-colors ${
                 reaction.mine
-                  ? 'border-indigo-400/70 bg-indigo-500/20 text-indigo-200'
+                  ? 'border-[#0390fc]/70 bg-[#0390fc]/20 text-[#0390fc]'
                   : 'border-[#454650] bg-[#303139] text-gray-300 hover:border-gray-500 hover:bg-[#393a44]'
               }`}
             >
@@ -305,7 +305,7 @@ export default function MessageBubble({
   ).edited_at
 
   const highlightClass = isHighlighted
-    ? 'bg-indigo-500/20 ring-1 ring-indigo-400/60'
+    ? 'bg-[#0390fc]/20 ring-1 ring-[#0390fc]/60'
     : 'hover:bg-white/[0.02]'
 
   function startEditing() {
@@ -358,14 +358,14 @@ export default function MessageBubble({
         rows={Math.min(Math.max(draft.split('\n').length, 2), 8)}
         disabled={savingEdit}
         aria-label="Edit message"
-        className="w-full resize-y rounded-md border border-indigo-400/50 bg-[#1d1e23] px-3 py-2 text-sm leading-relaxed text-white outline-none focus:border-indigo-400 disabled:opacity-60"
+        className="w-full resize-y rounded-md border border-[#0390fc]/50 bg-[#1d1e23] px-3 py-2 text-sm leading-relaxed text-white outline-none focus:border-[#0390fc] disabled:opacity-60"
       />
 
       <div className="flex items-center gap-2 text-xs">
         <button
           type="submit"
           disabled={savingEdit || (!draft.trim() && !message.attachment_path)}
-          className="rounded-md bg-indigo-500 px-3 py-1.5 font-medium text-white transition-colors hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-md bg-[#0390fc] px-3 py-1.5 font-medium text-white transition-colors hover:bg-[#0390fc] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {savingEdit ? 'Saving...' : 'Save'}
         </button>

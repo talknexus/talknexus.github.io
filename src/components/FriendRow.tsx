@@ -27,7 +27,7 @@ export default function FriendRow({
 
       <button
         title="Message"
-        className="rounded-lg bg-[#34353d] px-3 py-2 text-sm hover:bg-indigo-600"
+        className="rounded-lg bg-[#34353d] px-3 py-2 text-sm hover:bg-[#0390fc]"
         onClick={() => onOpenConversation(person)}
       >
         💬
