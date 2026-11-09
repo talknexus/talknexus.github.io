@@ -69,7 +69,7 @@ export default function FriendsPage({
           onClick={onOpenAddFriend}
           className="rounded-lg bg-[#0390fc] px-4 py-2 text-sm font-semibold hover:bg-[#0390fc]"
         >
-          Add Friend
+          + Add Friend
         </button>
       </header>
 
@@ -105,7 +105,14 @@ export default function FriendsPage({
                 <div className="mb-4 text-5xl">👋</div>
                 <h3 className="text-xl font-bold">No friends yet</h3>
                 <p className="mt-2 text-sm text-gray-400">
-                  Add someone using their exact NEXUS username.
+                  <a
+                    href="#"
+                    onClick={onOpenAddFriend}
+                    className="text-blue-400 hover:text-blue-300"
+                  >
+                    Add someone
+                  </a>{' '}
+                  using their exact NEXUS username.
                 </p>
               </div>
             )}
@@ -144,7 +151,7 @@ export default function FriendsPage({
                     onClick={() => onRespondToRequest(friendship.id, true)}
                     className="rounded-lg bg-[#0390fc] px-3 py-2 text-sm font-semibold hover:bg-[#0390fc] disabled:opacity-50"
                   >
-                    Accept
+                    Add
                   </button>
 
                   <button
@@ -152,7 +159,7 @@ export default function FriendsPage({
                     onClick={() => onRespondToRequest(friendship.id, false)}
                     className="rounded-lg bg-[#34353d] px-3 py-2 text-sm hover:bg-red-600 disabled:opacity-50"
                   >
-                    Reject
+                    Decline
                   </button>
                 </div>
               ))}

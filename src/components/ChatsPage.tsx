@@ -249,8 +249,10 @@ export default function ChatsPage({
             </div>
             <h2 className="text-2xl font-bold">Your messages</h2>
             <p className="mt-2 max-w-md text-sm text-gray-400">
-              Select a conversation to start chatting, or message a friend
-              from your Friends list.
+              Select a DM to start chatting, or message a friend
+              from your <a href="/friends" className="text-blue-400 hover:underline">
+                Friends list
+              </a>.
             </p>
           </div>
         )}

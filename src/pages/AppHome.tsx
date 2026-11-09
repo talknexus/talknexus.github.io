@@ -33,11 +33,24 @@ function AppHome() {
   const [replyingTo, setReplyingTo] = useState<DmMessage | null>(null)
 
   const [loadingProfile, setLoadingProfile] = useState(true)
+  const [loggingOut, setLoggingOut] = useState(false)
 
   const [showAddFriend, setShowAddFriend] = useState(false)
   const [friendUsername, setFriendUsername] = useState('')
 
   const [pageError, setPageError] = useState('')
+
+  async function handleLogout() {
+    setPageError('')
+    setLoggingOut(true)
+
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      setPageError(`Could not log out: ${error.message}`)
+      setLoggingOut(false)
+    }
+  }
 
   const clearActiveConversation = useCallback(() => {
     setActiveConversationId(null)
@@ -302,6 +315,8 @@ function AppHome() {
         loadingConversations={loadingConversations}
         activeConversationId={activeConversationId}
         userId={userId}
+        onLogout={handleLogout}
+        loggingOut={loggingOut}
         onSelectConversation={(id) => {
           setActiveConversationId(id)
           setReplyingTo(null)
@@ -361,6 +376,7 @@ function AppHome() {
         open={showAddFriend}
         onClose={() => setShowAddFriend(false)}
         username={friendUsername}
+        currentUsername={profile?.username ?? 'Unavailable'}
         setUsername={setFriendUsername}
         error={friendError}
         success={friendSuccess}

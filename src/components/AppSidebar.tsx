@@ -14,6 +14,8 @@ type AppSidebarProps = {
   userId: string
   onSelectConversation: (id: string) => void
   profile: SettingsProfile | null
+  onLogout: () => void
+  loggingOut: boolean
 }
 
 export default function AppSidebar({
@@ -78,8 +80,17 @@ export default function AppSidebar({
             <p className="truncate text-sm font-semibold">
               {profile?.display_name || 'Loading...'}
             </p>
-            <p className="truncate text-xs text-gray-400">
-              {profile ? `@${profile.username}` : ''}
+            {/* on clicking the username, copy to clipboard */}
+            <p
+              className="truncate text-xs text-gray-400 hover:cursor-pointer hover:text-white"
+              onClick={() => {
+                if (profile) {
+                  navigator.clipboard.writeText(`${profile.username}`)
+                  alert(`Copied username to clipboard!`)
+                }
+              }}
+            >
+              @{profile?.username || 'loading...'}
             </p>
           </div>
 

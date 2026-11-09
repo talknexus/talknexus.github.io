@@ -77,8 +77,8 @@ function Settings() {
     const cleanDisplayName = displayName.trim()
     const cleanBio = bio.trim()
 
-    if (!/^[a-zA-Z0-9]{3,24}$/.test(cleanUsername)) {
-      setError('Username must be 3–24 characters and contain only letters and numbers.')
+    if (!/^[a-z0-9]{3,24}$/.test(cleanUsername)) {
+      setError('Username must be 3–24 characters and contain only lowercase letters and numbers.')
       return
     }
 
@@ -129,6 +129,20 @@ function Settings() {
     setDisplayName(data.display_name)
     setBio(data.bio || '')
     setSuccess('Your changes have been saved!')
+  }
+
+  async function handleLogout() {
+    setError('')
+    setSuccess('')
+
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      setError(error.message)
+      return
+    }
+
+    window.location.href = '/'
   }
 
   async function uploadImage(file: File, type: ImageType) {
@@ -484,9 +498,12 @@ function Settings() {
                 <p className="mt-2 text-sm text-gray-400">
                   Sign out of your NEXUS account on this device.
                 </p>
-                <p className="mt-3 text-xs text-gray-500">
-                  Logout functionality is coming soon.
-                </p>
+                <button
+                  onClick={handleLogout}
+                  className="mt-4 rounded-lg bg-red-500 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-red-600"
+                >
+                  Log Out
+                </button>
               </div>
             </section>
           )}

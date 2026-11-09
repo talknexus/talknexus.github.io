@@ -44,7 +44,7 @@ export default function FriendRow({
             onClick={() => onUnfriend(friendship.id, person.display_name)}
             className="w-full rounded-md px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 disabled:opacity-50"
           >
-            Unfriend
+            Remove Friend
           </button>
         </div>
       </details>

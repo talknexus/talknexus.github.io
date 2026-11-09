@@ -2,6 +2,7 @@ type AddFriendModalProps = {
   open: boolean
   onClose: () => void
   username: string
+  currentUsername: string
   setUsername: (value: string) => void
   error: string
   success: string
@@ -13,6 +14,7 @@ export default function AddFriendModal({
   open,
   onClose,
   username,
+  currentUsername,
   setUsername,
   error,
   success,
@@ -25,7 +27,7 @@ export default function AddFriendModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-md rounded-xl border border-[#34353d] bg-[#1e1f24] p-6 shadow-2xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Add Friend</h2>
+          <h2 className="text-xl font-bold">Add someone!</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white"
@@ -35,7 +37,8 @@ export default function AddFriendModal({
         </div>
 
         <p className="mt-2 text-sm text-gray-400">
-          Enter their exact NEXUS username.
+          Add someone by their username. Case sensitive! Your username is{' '}
+          <span className="font-semibold text-white">{currentUsername}</span>.
         </p>
 
         <form
@@ -75,7 +78,7 @@ export default function AddFriendModal({
               disabled={adding}
               className="rounded-lg bg-[#0390fc] px-4 py-2 text-sm font-semibold hover:bg-[#0390fc] disabled:opacity-50"
             >
-              {adding ? 'Sending...' : 'Send Request'}
+              {adding ? 'Requesting...' : 'Add Friend'}
             </button>
           </div>
         </form>

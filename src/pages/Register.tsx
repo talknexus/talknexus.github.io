@@ -167,6 +167,9 @@ function Register() {
             </p>
           )}
 
+          <div className="h-captcha" data-sitekey="dd1410e2-31ee-44e8-b940-f484b02295f0"></div>
+          <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+
           <button
             type="submit"
             disabled={loading || !!success}

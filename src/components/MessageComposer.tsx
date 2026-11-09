@@ -39,8 +39,8 @@ export default function MessageComposer({
   function handleFileChange(file: File | undefined) {
     if (!file) return
 
-    if (file.size > 25 * 1024 * 1024) {
-      alert('Files must be 25 MB or smaller.')
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Files must be 10 MB or smaller.')
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
@@ -140,8 +140,8 @@ export default function MessageComposer({
               e.currentTarget.form?.requestSubmit()
             }
           }}
-          placeholder={`Message ${recipientName}`}
-          maxLength={4000}
+          placeholder={`Chat with ${recipientName}. Under 2000 characters.`}
+          maxLength={2000}
           rows={1}
           className="max-h-32 min-h-10 flex-1 resize-y bg-transparent px-2 py-2 text-sm text-white outline-none placeholder:text-gray-500"
         />
@@ -156,7 +156,7 @@ export default function MessageComposer({
       </div>
 
       <p className="mt-2 px-2 text-[11px] text-gray-500">
-        Enter to send · Shift + Enter for a new line · Max file size 25 MB
+        Enter to send · Shift + Enter for a new line · Max file size 10 MB
       </p>
     </form>
   )
