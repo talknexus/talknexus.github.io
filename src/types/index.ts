@@ -1,4 +1,4 @@
-export type Profile = {
+export interface Profile {
   id: string
   username: string
   display_name: string
@@ -7,7 +7,7 @@ export type Profile = {
   bio?: string
 }
 
-export type Friendship = {
+export interface Friendship {
   id: string
   requester_id: string
   addressee_id: string
@@ -15,25 +15,25 @@ export type Friendship = {
   created_at: string
 }
 
-export type FriendEntry = {
+export interface FriendEntry {
   friendship: Friendship
   profile: Profile
 }
 
-export type SettingsProfile = {
+export interface SettingsProfile {
   username: string
   display_name: string
   avatar_url: string | null
 }
 
-export type Conversation = {
+export interface Conversation {
   id: string
   user1_id: string
   user2_id: string
   created_at: string
 }
 
-export type DmMessage = {
+export interface DmMessage {
   id: string
   conversation_id: string
   sender_id: string
@@ -46,7 +46,7 @@ export type DmMessage = {
   reply_to_message_id: string | null
 }
 
-export type ConversationEntry = {
+export interface ConversationEntry {
   conversation: Conversation
   profile: Profile
   lastMessage: DmMessage | null

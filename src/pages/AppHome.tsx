@@ -20,6 +20,8 @@ import type {
   DmMessage,
 } from '../types'
 
+const isElectron = navigator.userAgent.toLowerCase().includes(' electron/')
+
 function AppHome() {
   const [activePage, setActivePage] = useState<'friends' | 'chats'>('friends')
   const [activeFriendTab, setActiveFriendTab] = useState<'all' | 'pending'>('all')
@@ -280,7 +282,10 @@ function AppHome() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#17181c] text-[#f2f3f5]">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#17181c] text-[#f2f3f5]">
+      {isElectron && <div className="electron-titlebar" />}
+
+      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
       <SpaceRail
         onHome={() => {
           setActivePage('friends')
@@ -383,6 +388,7 @@ function AppHome() {
         adding={addingFriend}
         onSubmit={sendFriendRequest}
       />
+    </div>
     </div>
   )
 }
