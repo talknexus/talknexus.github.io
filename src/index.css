@@ -36,3 +36,14 @@ input[type="radio"] {
   flex-shrink: 0;
   -webkit-app-region: drag;
 }
+
+/* Invisible Electron window drag area */
+.electron-drag-region {
+  position: absolute;
+  top: 0;
+  left: 80px;
+  right: 0;
+  height: 40px;
+  z-index: 50;
+  -webkit-app-region: drag;
+}

@@ -58,6 +58,109 @@ export default {
         return respond({ error: "Invalid request." }, 400);
       }
 
+      // LOGIN: authenticate using either username or email.
+      if (body.action === "login") {
+        if (
+          typeof body.identifier !== "string" ||
+          typeof body.password !== "string" ||
+          body.identifier.trim().length === 0 ||
+          body.identifier.trim().length > 320 ||
+          body.password.length === 0 ||
+          body.password.length > 1024
+        ) {
+          return respond(
+            { error: "Incorrect username/email or password." },
+            401,
+          );
+        }
+
+        const identifier = body.identifier.trim();
+        let email = "";
+        if (identifier.includes("@")) {
+          // Email login. The email is used internally for authentication.
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) {
+            return respond(
+              { error: "Incorrect username/email or password." },
+              401,
+            );
+          }
+
+          email = identifier;
+        } else {
+          // Username login. Only alphanumeric usernames are accepted.
+          if (!/^[a-zA-Z0-9]{3,24}$/.test(identifier)) {
+            return respond(
+              { error: "Incorrect username/email or password." },
+              401,
+            );
+          }
+
+          const { data: profile, error: profileError } =
+            await ctx.supabaseAdmin
+              .from("profiles")
+              .select("id")
+              .eq("username", identifier.toLowerCase())
+              .maybeSingle();
+
+          if (profileError || !profile) {
+            console.error("Username lookup failed:", {
+              code: profileError?.code ?? null,
+              message: profileError?.message ?? "Profile not found",
+            });
+
+            return respond(
+              { error: "Incorrect username/email or password." },
+              401,
+            );
+          }
+
+          const { data: userData, error: userError } =
+            await ctx.supabaseAdmin.auth.admin.getUserById(profile.id);
+
+          if (userError || !userData.user?.email) {
+            console.error("Auth user lookup failed:", {
+              code: userError?.code ?? null,
+              message: userError?.message ?? "Auth user or email not found",
+            });
+
+            return respond(
+              { error: "Incorrect username/email or password." },
+              401,
+            );
+          }
+
+          email = userData.user.email;
+        }
+
+        // Authenticate through Supabase Auth using the resolved email.
+        const { data: authData, error: authError } =
+          await ctx.supabase.auth.signInWithPassword({
+            email,
+            password: body.password,
+          });
+
+        if (authError || !authData.session) {
+          console.error("Password authentication failed:", {
+            code: authError?.code ?? null,
+            message: authError?.message ?? "No session returned",
+          });
+
+          return respond(
+            { error: "Incorrect username/email or password." },
+            401,
+          );
+        }
+
+        // Return only session credentials, never the account email.
+        return respond({
+          access_token: authData.session.access_token,
+          refresh_token: authData.session.refresh_token,
+          expires_in: authData.session.expires_in,
+          expires_at: authData.session.expires_at,
+          token_type: authData.session.token_type,
+        });
+      }
+
       // CREATE: browser requests a temporary handoff code.
       if (body.action === "create") {
         if (ctx.authMode !== "user" || !ctx.userClaims?.id) {
@@ -96,7 +199,10 @@ export default {
 
         if (!created) {
           return respond(
-            { error: "Cooldown active. Please wait 10 seconds before trying again." },
+            {
+              error:
+                "Cooldown active. Please wait 10 seconds before trying again.",
+            },
             429,
           );
         }
@@ -122,7 +228,6 @@ export default {
         const challenge = await createChallenge(body.verifier);
         const now = new Date().toISOString();
 
-        // Consume only if the code, challenge and expiry all match.
         const { data: redeemed, error: redeemError } =
           await ctx.supabaseAdmin
             .from("desktop_auth_codes")
@@ -147,7 +252,10 @@ export default {
 
         if (userError || !email) {
           console.error("Could not retrieve desktop auth user.");
-          return respond({ error: "Could not complete desktop login." }, 500);
+          return respond(
+            { error: "Could not complete desktop login." },
+            500,
+          );
         }
 
         const { data: linkData, error: linkError } =
@@ -160,7 +268,10 @@ export default {
 
         if (linkError || !tokenHash) {
           console.error("Could not generate desktop auth token.");
-          return respond({ error: "Could not complete desktop login." }, 500);
+          return respond(
+            { error: "Could not complete desktop login." },
+            500,
+          );
         }
 
         return respond({

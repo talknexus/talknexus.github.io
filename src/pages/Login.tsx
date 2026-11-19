@@ -1,10 +1,9 @@
-
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
 import {
   generatePkcePair,
   redeemDesktopAuthCode,
+  signInWithUsernameOrEmail,
 } from '../lib/desktopAuth'
 
 function Login() {
@@ -21,8 +20,9 @@ function Login() {
       : '/app'
 
   const isElectron = Boolean(window.nexusDesktop)
+  const browserLoginStarted = useRef(false)
 
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -70,8 +70,6 @@ function Login() {
         }
 
         await redeemDesktopAuthCode(code, verifier)
-
-        // Only remove the verifier after successful redemption.
         sessionStorage.removeItem('nexus-desktop-pkce-verifier')
 
         navigate('/app', { replace: true })
@@ -89,6 +87,19 @@ function Login() {
 
     return unsubscribe
   }, [navigate])
+
+  useEffect(() => {
+    if (
+      !isElectron ||
+      searchParams.get('startBrowser') !== '1' ||
+      browserLoginStarted.current
+    ) {
+      return
+    }
+
+    browserLoginStarted.current = true
+    void handleBrowserLogin()
+  }, [isElectron, searchParams])
 
   async function handleBrowserLogin() {
     if (!window.nexusDesktop) return
@@ -129,19 +140,18 @@ function Login() {
     setError('')
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    })
-
-    setLoading(false)
-
-    if (error) {
-      setError('Incorrect email or password. Please try again.')
-      return
+    try {
+      await signInWithUsernameOrEmail(identifier, password)
+      navigate(returnTo)
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Incorrect username/email or password.'
+      )
+    } finally {
+      setLoading(false)
     }
-
-    navigate(returnTo)
   }
 
   return (
@@ -187,14 +197,16 @@ function Login() {
 
         <form onSubmit={handleLogin} className={isElectron ? 'space-y-5' : 'mt-8 space-y-5'}>
           <div>
-            <label className="mb-1 block text-sm font-medium">Email</label>
+            <label className="mb-1 block text-sm font-medium">
+              Username or email
+            </label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
-              autoComplete="email"
-              placeholder="you@example.com"
+              autoComplete="username"
+              placeholder="Your username or email"
               className="w-full rounded-lg border border-[#34353d] bg-[#17181c] px-4 py-3 text-white outline-none focus:border-[#0390fc]"
             />
           </div>

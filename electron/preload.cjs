@@ -1,3 +1,4 @@
+
 const { contextBridge, ipcRenderer } = require('electron');
 
 let authCallback = null;
@@ -14,6 +15,9 @@ ipcRenderer.on('desktop-auth-callback', (_event, url) => {
 contextBridge.exposeInMainWorld('nexusDesktop', {
     openBrowserAuth: (url) =>
         ipcRenderer.invoke('open-browser-auth', url),
+
+    setWindowMode: (mode) =>
+        ipcRenderer.invoke('set-window-mode', mode),
 
     onAuthCallback: (callback) => {
         authCallback = callback;

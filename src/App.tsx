@@ -1,4 +1,6 @@
+
 import DesktopAuth from './pages/DesktopAuth'
+import DesktopLandingPage from './pages/DesktopLandingPage'
 import Settings from './pages/Settings'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -10,13 +12,9 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 
 function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
-  const isElectron = navigator.userAgent.includes('Electron/')
-
   return (
     <div className="min-h-screen bg-[#17181c] text-[#f2f3f5]">
-      {isElectron && <div className="electron-titlebar" />}
-
-      <div className={isElectron ? 'pt-[0px]' : ''}>
+      <div>
         <header className="flex h-20 items-center justify-between border-b border-[#292a30] px-8 md:px-16">
           <Link to="/" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0390fc] text-xl font-bold text-white">
@@ -54,8 +52,6 @@ function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
         </header>
 
         <main className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-6 text-center">
-          <div className="mb-6"></div>
-
           <h1 className="text-5xl font-black tracking-tight sm:text-7xl md:text-8xl">
             <span className="block text-white">join the</span>
             <span className="inline text-[#0390fc]">fun side</span>
@@ -119,6 +115,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   const location = useLocation()
 
+  const isElectron = Boolean(window.nexusDesktop)
+
   const loginParams = new URLSearchParams(location.search)
   const loginChallenge = loginParams.get('challenge')
 
@@ -152,6 +150,16 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!isElectron || loading) return
+
+    const mode = session ? 'app' : 'welcome'
+
+    window.nexusDesktop?.setWindowMode(mode).catch((error) => {
+      console.error('Could not change NEXUS window mode:', error)
+    })
+  }, [isElectron, loading, session])
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#17181c] text-white">
@@ -162,16 +170,37 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<LandingPage isLoggedIn={!!session} />} />
+      <Route
+        path="/"
+        element={
+          isElectron ? (
+            session ? <Navigate to="/app" replace /> : <DesktopLandingPage />
+          ) : (
+            <LandingPage isLoggedIn={!!session} />
+          )
+        }
+      />
 
       <Route
         path="/login"
-        element={session ? <Navigate to={loginReturnTo} replace /> : <Login />}
+        element={
+          isElectron
+            ? <Navigate to="/" replace />
+            : session
+              ? <Navigate to={loginReturnTo} replace />
+              : <Login />
+        }
       />
 
       <Route
         path="/register"
-        element={session ? <Navigate to="/app" replace /> : <Register />}
+        element={
+          isElectron
+            ? <Navigate to="/" replace />
+            : session
+              ? <Navigate to="/app" replace />
+              : <Register />
+        }
       />
 
       <Route
@@ -181,12 +210,12 @@ function App() {
 
       <Route
         path="/app"
-        element={session ? <AppHome /> : <Navigate to="/login" replace />}
+        element={session ? <AppHome /> : <Navigate to="/" replace />}
       />
 
       <Route
         path="/app/settings"
-        element={session ? <Settings /> : <Navigate to="/login" replace />}
+        element={session ? <Settings /> : <Navigate to="/" replace />}
       />
 
       <Route path="*" element={<Navigate to="/" replace />} />

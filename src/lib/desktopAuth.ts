@@ -1,4 +1,3 @@
-
 import { supabase } from './supabase'
 
 function base64UrlEncode(bytes: Uint8Array): string {
@@ -56,5 +55,37 @@ export async function redeemDesktopAuthCode(
 
   if (verifyError) {
     throw new Error('Could not establish your NEXUS desktop session.')
+  }
+}
+
+export async function signInWithUsernameOrEmail(
+  identifier: string,
+  password: string
+): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('desktop-auth', {
+    body: {
+      action: 'login',
+      identifier: identifier.trim(),
+      password,
+    },
+  })
+
+  if (
+    error ||
+    !data?.access_token ||
+    !data?.refresh_token
+  ) {
+    throw new Error(
+      data?.error || 'Incorrect username/email or password.'
+    )
+  }
+
+  const { error: sessionError } = await supabase.auth.setSession({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+  })
+
+  if (sessionError) {
+    throw new Error('Could not establish your NEXUS session.')
   }
 }
