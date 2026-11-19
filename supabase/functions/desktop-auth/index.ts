@@ -86,13 +86,17 @@ export default {
         );
 
         if (error) {
-          console.error("Could not create desktop auth code.");
+          console.error("Could not create desktop auth code:", {
+            code: error.code,
+            message: error.message,
+          });
+
           return respond({ error: "Could not start desktop login." }, 500);
         }
 
         if (!created) {
           return respond(
-            { error: "Please wait 60 seconds before trying again." },
+            { error: "Cooldown active. Please wait 10 seconds before trying again." },
             429,
           );
         }

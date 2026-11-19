@@ -16,55 +16,102 @@ function DesktopAuth() {
     started.current = true
 
     async function startAuthentication() {
-      if (!challenge || !/^[A-Za-z0-9_-]{43}$/.test(challenge)) {
-        setMessage('This desktop login link is invalid. Please try again from the NEXUS app.')
-        return
-      }
-
-      setMessage('Checking your NEXUS account...')
-
-      const { data: { session }, error: sessionError } =
-        await supabase.auth.getSession()
-
-      if (sessionError) {
-        setMessage('Could not check your login session. Please try again.')
-        return
-      }
-
-      if (!session) {
-        const params = new URLSearchParams({
-          returnTo: '/desktop-auth',
-          challenge,
-        })
-
-        navigate(`/login?${params.toString()}`, { replace: true })
-        return
-      }
-
-      setMessage('Connecting your NEXUS account to the desktop app...')
-
-      const { data, error } = await supabase.functions.invoke(
-        'desktop-auth',
-        {
-          body: {
-            action: 'create',
-            code_challenge: challenge,
-          },
+      try {
+        if (!challenge || !/^[A-Za-z0-9_-]{43}$/.test(challenge)) {
+          setMessage(
+            'Invalid login link. Please start again from the NEXUS desktop app.'
+          )
+          return
         }
-      )
 
-      if (error || !data?.code) {
-        setMessage(
-          data?.error ||
-          'Could not start desktop login. Please return to the NEXUS app and try again.'
+        setMessage('Checking your NEXUS account...')
+
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession()
+
+        if (sessionError) {
+          setMessage(
+            'Could not verify your session. Please refresh and try again.'
+          )
+          return
+        }
+
+        if (!session) {
+          const params = new URLSearchParams({
+            returnTo: '/desktop-auth',
+            challenge,
+          })
+
+          navigate(`/login?${params.toString()}`, { replace: true })
+          return
+        }
+
+        setMessage('Connecting your NEXUS account to the desktop app...')
+
+        const { data, error } = await supabase.functions.invoke(
+          'desktop-auth',
+          {
+            body: {
+              action: 'create',
+              code_challenge: challenge,
+            },
+          }
         )
-        return
+
+        if (error) {
+          let status: number | undefined
+
+          if (error.context instanceof Response) {
+            status = error.context.status
+          } else if (
+            typeof error.context === 'object' &&
+            error.context !== null &&
+            'status' in error.context
+          ) {
+            const value = error.context.status
+
+            if (typeof value === 'number') {
+              status = value
+            }
+          }
+
+          if (status === 429) {
+            setMessage(
+              'Cooldown active. Please wait 10 seconds before trying again.'
+            )
+          } else if (status === 401) {
+            setMessage(
+              'Your browser session has expired. Please log in again.'
+            )
+          } else if (!status) {
+            setMessage(
+              'Connection problem. Check your internet and try again.'
+            )
+          } else {
+            setMessage('Could not start desktop login. Please try again.')
+          }
+
+          return
+        }
+
+        if (!data?.code || !/^[a-f0-9]{64}$/.test(data.code)) {
+          setMessage(
+            'Could not create a login token. Please try again.'
+          )
+          return
+        }
+
+        setMessage('Login approved! Returning to the NEXUS desktop app...')
+
+        window.location.href =
+          `nexus://auth/callback?code=${encodeURIComponent(data.code)}`
+      } catch {
+        setMessage(
+          'Something went wrong. Please refresh and try again.'
+        )
       }
-
-      setMessage('Login approved! Returning to the NEXUS desktop app...')
-
-      window.location.href =
-        `nexus://auth/callback?code=${encodeURIComponent(data.code)}`
     }
 
     startAuthentication()
@@ -85,7 +132,9 @@ function DesktopAuth() {
           {message}
         </p>
 
-        {message.includes('try again') && (
+        {(message.includes('try again') ||
+          message.includes('refresh') ||
+          message.includes('wait 10 seconds')) && (
           <button
             onClick={() => window.location.reload()}
             className="mt-6 rounded-lg bg-[#0390fc] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#168ff0]"
