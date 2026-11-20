@@ -4,6 +4,7 @@ import Avatar from './Avatar'
 import MessageAttachment from './MessageAttachment'
 import type { Profile, SettingsProfile, DmMessage } from '../types'
 import type { MessageReaction } from '../hooks/useMessageReactions'
+import { showConfirm } from './NexusPopup'
 
 type MessageBubbleProps = {
   message: DmMessage
@@ -165,10 +166,14 @@ function ReactionBar({
     setPickerOpen(false)
   }
 
-  function deleteMessage() {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this message? This cannot be undone.',
-    )
+  async function deleteMessage() {
+    const confirmed = await showConfirm({
+      title: 'Delete message?',
+      message: 'Are you sure you want to delete this message? This cannot be undone.',
+      type: 'danger',
+      confirmText: 'Yes, delete',
+      cancelText: 'Cancel',
+    })
 
     if (confirmed) {
       void onDeleteMessage(messageId)

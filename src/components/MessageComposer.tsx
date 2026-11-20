@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { FormEvent, Dispatch, SetStateAction } from 'react'
 import Avatar from './Avatar'
 import type { DmMessage, Profile, SettingsProfile } from '../types'
+import { showAlert } from './NexusPopup'
 
 type MessageComposerProps = {
   messageText: string
@@ -40,7 +41,12 @@ export default function MessageComposer({
     if (!file) return
 
     if (file.size > 10 * 1024 * 1024) {
-      alert('Files must be 10 MB or smaller.')
+      void showAlert({
+        title: 'File too large',
+        message: 'Files must be 10 MB or smaller.',
+        type: 'error',
+        confirmText: 'Got it',
+      })
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }

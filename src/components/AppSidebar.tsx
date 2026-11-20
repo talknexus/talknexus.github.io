@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import Avatar from './Avatar'
 import ConversationList from './ConversationList'
 import type { ConversationEntry, SettingsProfile } from '../types'
+import { showAlert } from './NexusPopup'
 
 type AppSidebarProps = {
   activePage: 'friends' | 'chats'
@@ -83,10 +84,15 @@ export default function AppSidebar({
             {/* on clicking the username, copy to clipboard */}
             <p
               className="truncate text-xs text-gray-400 hover:cursor-pointer hover:text-white"
-              onClick={() => {
+              onClick={async () => {
                 if (profile) {
-                  navigator.clipboard.writeText(`${profile.username}`)
-                  alert(`Copied username to clipboard!`)
+                  await navigator.clipboard.writeText(`${profile.username}`)
+                  void showAlert({
+                    title: 'Username copied',
+                    message: `@${profile.username} was copied to your clipboard.`,
+                    type: 'success',
+                    confirmText: 'Alright',
+                  })
                 }
               }}
             >

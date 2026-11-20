@@ -3,11 +3,14 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
+import { NexusPopupProvider } from './components/NexusPopup'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <NexusPopupProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </NexusPopupProvider>
   </React.StrictMode>,
 )

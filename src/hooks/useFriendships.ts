@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { supabase } from '../lib/supabase'
+import { showConfirm } from '../components/NexusPopup'
 
 import type {
   Profile,
@@ -209,9 +210,13 @@ export default function useFriendships({
     friendshipId: string,
     displayName: string,
   ) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to unfriend ${displayName}?`,
-    )
+    const confirmed = await showConfirm({
+      title: 'Remove friend?',
+      message: `Are you sure you want to unfriend ${displayName}?`,
+      type: 'danger',
+      confirmText: 'Yes, remove',
+      cancelText: 'Keep',
+    })
 
     if (!confirmed) return
 
