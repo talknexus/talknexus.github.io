@@ -33,3 +33,6 @@ backups/
 *.backup*
 *.before-*
 *-backup*
+
+# release files
+release/

@@ -4,11 +4,15 @@ import {
   BrowserWindow,
   Menu,
   ipcMain,
+  dialog,
   shell
 } from 'electron'
+import pkg from 'electron-updater'
 
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+const { autoUpdater } = pkg
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -34,6 +38,68 @@ const WINDOW_MODES = {
 let mainWindow = null
 let pendingAuthCallback = null
 let currentWindowMode = 'welcome'
+
+function setupAutoUpdater() {
+  if (!app.isPackaged) return
+
+  autoUpdater.autoDownload = false
+  autoUpdater.autoInstallOnAppQuit = true
+
+  autoUpdater.on('update-available', (info) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return
+
+    dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: 'NEXUS update available',
+      message: `A new version of NEXUS (${info.version}) is available.`,
+      detail: 'Would you like to download it now?',
+      buttons: ['Download update', 'Later'],
+      defaultId: 0,
+      cancelId: 1
+    }).then(({ response }) => {
+      if (response === 0) {
+        autoUpdater.downloadUpdate()
+      }
+    })
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.setProgressBar(progress.percent / 100)
+    }
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.setProgressBar(-1)
+    }
+
+    dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: 'Update ready',
+      message: 'NEXUS has downloaded the update.',
+      detail: 'Restart now to finish installing it.',
+      buttons: ['Restart and update', 'Later'],
+      defaultId: 0,
+      cancelId: 1
+    }).then(({ response }) => {
+      if (response === 0) {
+        autoUpdater.quitAndInstall()
+      }
+    })
+  })
+
+  autoUpdater.on('error', (error) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.setProgressBar(-1)
+    }
+    console.error('Desktop update error:', error)
+  })
+
+  autoUpdater.checkForUpdates().catch((error) => {
+    console.error('Could not check for desktop updates:', error)
+  })
+}
 
 const gotLock = app.requestSingleInstanceLock()
 
@@ -205,6 +271,7 @@ if (!gotLock) {
 
     Menu.setApplicationMenu(null)
     createWindow()
+    setupAutoUpdater()
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) {

@@ -246,9 +246,11 @@ function DesktopLandingPage() {
           {view === 'welcome' && (
             <div className="text-center">
               <div className="mb-5">
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-[#0390fc] text-3xl font-black">
-                  N
-                </div>
+                <img
+                  src={`${import.meta.env.BASE_URL}nexus-logo-blue.png`}
+                  alt="NEXUS"
+                  className="mx-auto mb-3 h-12 w-12 rounded-xl object-cover"
+                />
 
                 <h1 className="text-2xl font-black tracking-tight">
                   Welcome back to <span className="text-[#0390fc]">NEXUS</span>
@@ -562,9 +564,11 @@ function DesktopLandingPage() {
       {/* Right blue panel */}
       <section className="flex h-full w-1/2 items-center justify-center bg-[#0390fc]">
         <div className="select-none text-center">
-          <div className="text-[130px] font-black leading-none text-white/95">
-            N
-          </div>
+          <img
+            src={`${import.meta.env.BASE_URL}nexus-logo-white.png`}
+            alt="NEXUS"
+            className="mx-auto h-32 w-32 object-contain"
+          />
 
           <p className="mt-2 text-[10px] font-bold tracking-[0.35em] text-white/80">
             WELCOME TO THE FUN SIDE

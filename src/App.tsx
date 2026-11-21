@@ -5,21 +5,69 @@ import Settings from './pages/Settings'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import AppHome from './pages/AppHome'
+import WhatsNew from './components/WhatsNew'
+import { getLatestPublishedRelease } from './lib/whatsNew'
+import type { PublishedWhatsNewRelease } from './lib/whatsNew'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 
+type DesktopPlatform = 'windows' | 'macos' | 'other'
+
+const GITHUB_RELEASES_URL =
+  'https://github.com/talknexus/talknexus.github.io/releases'
+
+function detectDesktopPlatform(): DesktopPlatform {
+  const navigatorWithPlatform = navigator as Navigator & {
+    userAgentData?: { platform?: string }
+  }
+  const platform =
+    navigatorWithPlatform.userAgentData?.platform ||
+    navigator.platform ||
+    navigator.userAgent
+  const normalized = platform.toLowerCase()
+
+  if (normalized.includes('win')) return 'windows'
+  if (normalized.includes('mac')) return 'macos'
+  return 'other'
+}
+
 function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const [desktopPlatform, setDesktopPlatform] =
+    useState<DesktopPlatform>('other')
+
+  useEffect(() => {
+    setDesktopPlatform(detectDesktopPlatform())
+  }, [])
+
+  const desktopDownload =
+    desktopPlatform === 'windows'
+      ? {
+          label: 'Download for Windows',
+          url: `${GITHUB_RELEASES_URL}/latest/download/NEXUS-Setup.exe`,
+        }
+      : desktopPlatform === 'macos'
+        ? {
+            label: 'Download for macOS',
+            url: `${GITHUB_RELEASES_URL}/latest/download/NEXUS.dmg`,
+          }
+        : {
+            label: 'Desktop downloads',
+            url: GITHUB_RELEASES_URL,
+          }
+
   return (
     <div className="min-h-screen bg-[#17181c] text-[#f2f3f5]">
       <div>
         <header className="flex h-20 items-center justify-between border-b border-[#292a30] px-8 md:px-16">
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0390fc] text-xl font-bold text-white">
-              N
-            </div>
+            <img
+              src={`${import.meta.env.BASE_URL}nexus-logo-blue.png`}
+              alt="NEXUS"
+              className="h-10 w-10 rounded-xl object-cover"
+            />
             <span className="text-xl font-bold tracking-wide">NEXUS</span>
           </Link>
 
@@ -72,10 +120,11 @@ function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
             </Link>
 
             <a
-              href="#features"
+              href={desktopDownload.url}
+              rel="noopener noreferrer"
               className="rounded-xl border border-[#34353d] px-8 py-3.5 text-sm font-semibold text-white transition hover:border-[#0390fc] hover:bg-[#0390fc]/10"
             >
-              Learn More
+              {desktopDownload.label}
             </a>
           </div>
 
@@ -113,6 +162,9 @@ function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
 function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [whatsNewRelease, setWhatsNewRelease] =
+    useState<PublishedWhatsNewRelease | null>(null)
+  const shownWhatsNewUserRef = useRef<{ userId: string; version: string } | null>(null)
   const location = useLocation()
 
   const isElectron = Boolean(window.nexusDesktop)
@@ -160,6 +212,52 @@ function App() {
     })
   }, [isElectron, loading, session])
 
+  useEffect(() => {
+    if (!session) {
+      shownWhatsNewUserRef.current = null
+      setWhatsNewRelease(null)
+      return
+    }
+
+    const latestRelease = getLatestPublishedRelease()
+    if (!latestRelease) {
+      setWhatsNewRelease(null)
+      return
+    }
+
+    const lastSeen = session.user.user_metadata?.last_seen_whats_new
+    if (typeof lastSeen === 'string' && lastSeen === latestRelease.version) {
+      setWhatsNewRelease(null)
+      return
+    }
+
+    const alreadyShown =
+      shownWhatsNewUserRef.current?.userId === session.user.id &&
+      shownWhatsNewUserRef.current.version === latestRelease.version
+
+    if (alreadyShown) return
+
+    shownWhatsNewUserRef.current = {
+      userId: session.user.id,
+      version: latestRelease.version,
+    }
+    setWhatsNewRelease(latestRelease)
+  }, [loading, session])
+
+  async function dismissWhatsNew(release: PublishedWhatsNewRelease) {
+    setWhatsNewRelease(null)
+
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        last_seen_whats_new: release.version,
+      },
+    })
+
+    if (error) {
+      console.error('Could not save Whats New dismissal:', error)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#17181c] text-white">
@@ -169,57 +267,66 @@ function App() {
   }
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          isElectron ? (
-            session ? <Navigate to="/app" replace /> : <DesktopLandingPage />
-          ) : (
-            <LandingPage isLoggedIn={!!session} />
-          )
-        }
-      />
+    <>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isElectron ? (
+              session ? <Navigate to="/app" replace /> : <DesktopLandingPage />
+            ) : (
+              <LandingPage isLoggedIn={!!session} />
+            )
+          }
+        />
 
-      <Route
-        path="/login"
-        element={
-          isElectron
-            ? <Navigate to="/" replace />
-            : session
-              ? <Navigate to={loginReturnTo} replace />
-              : <Login />
-        }
-      />
+        <Route
+          path="/login"
+          element={
+            isElectron
+              ? <Navigate to="/" replace />
+              : session
+                ? <Navigate to={loginReturnTo} replace />
+                : <Login />
+          }
+        />
 
-      <Route
-        path="/register"
-        element={
-          isElectron
-            ? <Navigate to="/" replace />
-            : session
-              ? <Navigate to="/app" replace />
-              : <Register />
-        }
-      />
+        <Route
+          path="/register"
+          element={
+            isElectron
+              ? <Navigate to="/" replace />
+              : session
+                ? <Navigate to="/app" replace />
+                : <Register />
+          }
+        />
 
-      <Route
-        path="/desktop-auth"
-        element={<DesktopAuth />}
-      />
+        <Route
+          path="/desktop-auth"
+          element={<DesktopAuth />}
+        />
 
-      <Route
-        path="/app"
-        element={session ? <AppHome /> : <Navigate to="/" replace />}
-      />
+        <Route
+          path="/app"
+          element={session ? <AppHome /> : <Navigate to="/" replace />}
+        />
 
-      <Route
-        path="/app/settings"
-        element={session ? <Settings /> : <Navigate to="/" replace />}
-      />
+        <Route
+          path="/app/settings"
+          element={session ? <Settings /> : <Navigate to="/" replace />}
+        />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
+      {session && whatsNewRelease && (
+        <WhatsNew
+          release={whatsNewRelease}
+          onClose={() => void dismissWhatsNew(whatsNewRelease)}
+        />
+      )}
+    </>
   )
 }
 

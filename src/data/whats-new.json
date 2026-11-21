@@ -1,0 +1,67 @@
+{
+  "releases": [
+    {
+      "version": "1.0.0",
+      "title": "NEXUS 1.0.0",
+      "releaseDate": "2026-11-20",
+      "status": "draft",
+      "sections": [
+        {
+          "name": "New Features",
+          "items": [
+            {
+              "title": "GROUP CHATS!!!",
+              "description": "IT'S HERE! Multi-user group chats have been finally added! Click the plus icon beside the new \"Your Conversations\" menu and start adding away!"
+            },
+            {
+              "title": "Release Notes System",
+              "description": "Say hello to the brand new NEXUS What's New system, allowing you to stay informed about new features, improvements, and fixes!"
+            },
+            {
+              "title": "NEXUS App",
+              "description": "We're actively working on the new NEXUS desktop application for macOS and Windows!"
+            },
+            {
+              "title": "Browser Authentication",
+              "description": "We've added browser-based authentication within the app, so you don't have to type in your username/email and password every time."
+            },
+            {
+              "title": "Password Changing",
+              "description": "We've added the ability to change your account password through Settings, so your account stays secure."
+            }
+          ]
+        },
+        {
+          "name": "Improvements",
+          "items": [
+            {
+              "title": "Desktop Landing Page",
+              "description": "We gave the NEXUS desktop application a full makeover with a brand new landing page and easier login/signup!"
+            },
+            {
+              "title": "Web Domain",
+              "description": "We've have a new domain!! https://talknexus.github.io will now redirect to https://nexus.qwertydev.me, which is our new home!"
+            }
+          ]
+        },
+        {
+          "name": "Bug Fixes",
+          "items": [
+            {
+              "title": "Settings Navigation",
+              "description": "We've fixed an issue where the Back to NEXUS button in Settings scrolled too far down the page when you opened the profile settings."
+            },
+            {
+              "title": "Fixed Spaces Rail unread count",
+              "description": "We've fixed the unread notification counter from only showing one notification/DM"
+            },
+            {
+              "title": "and much more...",
+              "description": "We've polished and fixed other minor bugs to make NEXUS better for you!"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

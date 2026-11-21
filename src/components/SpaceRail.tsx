@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Avatar from './Avatar'
 import type { ConversationEntry } from '../types'
 
@@ -23,15 +23,52 @@ export default function SpaceRail({
   const unreadIds = conversations
     .filter((entry) => (unreadCounts[entry.conversation.id] || 0) > 0)
     .map((entry) => entry.conversation.id)
-
-  const unreadKey = unreadIds.join('|')
+  const unreadKey = unreadIds
+    .map((id) => `${id}:${unreadCounts[id] || 0}`)
+    .join('|')
 
   const [animationStates, setAnimationStates] = useState<
     Record<string, AnimationState>
   >({})
+  const [orderedUnreadIds, setOrderedUnreadIds] = useState<string[]>([])
+  const previousCounts = useRef<Record<string, number>>({})
+  const initializedUnreadOrder = useRef(false)
 
   useEffect(() => {
-    const currentUnreadIds = unreadKey ? unreadKey.split('|') : []
+    const currentUnreadIds = unreadKey
+      ? unreadKey.split('|').map((entry) => entry.split(':')[0])
+      : []
+    const currentCounts = Object.fromEntries(
+      unreadIds.map((id) => [id, unreadCounts[id] || 0]),
+    )
+    const previous = previousCounts.current
+
+    setOrderedUnreadIds((existingOrder) => {
+      if (!initializedUnreadOrder.current) {
+        initializedUnreadOrder.current = true
+        return unreadIds
+      }
+
+      const newestIds = currentUnreadIds.filter(
+        (id) =>
+          (currentCounts[id] || 0) > (previous[id] || 0),
+      )
+      const remainingIds = currentUnreadIds.filter(
+        (id) => !newestIds.includes(id),
+      )
+      const existingIds = existingOrder.filter(
+        (id) => currentUnreadIds.includes(id),
+      )
+      const existingRemaining = existingIds.filter(
+        (id) => !newestIds.includes(id),
+      )
+
+      return [
+        ...newestIds,
+        ...existingRemaining,
+        ...remainingIds.filter((id) => !existingRemaining.includes(id)),
+      ]
+    })
 
     setAnimationStates((current) => {
       const next = { ...current }
@@ -50,6 +87,8 @@ export default function SpaceRail({
 
       return next
     })
+
+    previousCounts.current = currentCounts
 
     let secondFrame = 0
 
@@ -90,9 +129,12 @@ export default function SpaceRail({
     }
   }, [unreadKey])
 
-  const displayedConversations = conversations.filter(
-    (entry) => animationStates[entry.conversation.id] !== undefined,
+  const conversationMap = new Map(
+    conversations.map((entry) => [entry.conversation.id, entry]),
   )
+  const displayedConversations = orderedUnreadIds
+    .map((id) => conversationMap.get(id))
+    .filter((entry): entry is ConversationEntry => Boolean(entry))
 
   return (
     <aside className="flex h-full w-[72px] shrink-0 flex-col items-center gap-4 overflow-hidden bg-[#111216] py-4">
@@ -102,7 +144,11 @@ export default function SpaceRail({
         title="Home"
         className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0390fc] text-xl font-bold hover:bg-[#0390fc]"
       >
-        N
+        <img
+          src={`${import.meta.env.BASE_URL}nexus-logo-white.png`}
+          alt="NEXUS"
+          className="h-8 w-8 object-contain"
+        />
       </button>
 
       {/* Unread Direct Messages */}

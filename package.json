@@ -1,18 +1,59 @@
 {
   "name": "nexus",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && cp dist/index.html dist/404.html",
     "lint": "eslint .",
     "preview": "vite preview",
-    "desktop": "electron ."
+    "desktop": "electron .",
+    "package:mac": "npm run build && electron-builder --mac dmg --arm64",
+    "package:win": "npm run build && electron-builder --win nsis",
+    "release:mac": "npm run build && electron-builder --mac dmg zip --arm64 --publish always",
+    "release:win": "npm run build && electron-builder --win nsis --publish always"
+  },
+  "build": {
+    "appId": "com.qwertydev.nexus",
+    "productName": "NEXUS",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "talknexus",
+        "repo": "talknexus.github.io",
+        "releaseType": "release"
+      }
+    ],
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "mac": {
+      "icon": "build/NEXUS.icns",
+      "artifactName": "NEXUS.${ext}",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "icon": "build/NEXUS.ico",
+      "artifactName": "NEXUS-Setup.${ext}",
+      "target": [
+        "nsis"
+      ]
+    }
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
     "@tailwindcss/vite": "^4.3.4",
+    "electron-updater": "^6.8.11",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.5",
@@ -25,6 +66,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "electron": "^45.3.1",
+    "electron-builder": "^26.18.0",
     "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",

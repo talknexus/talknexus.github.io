@@ -120,9 +120,11 @@ function DesktopAuth() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#17181c] px-4 text-white">
       <div className="w-full max-w-md rounded-2xl border border-[#34353d] bg-[#1e1f24] p-8 text-center shadow-xl">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0390fc] text-2xl font-black">
-          N
-        </div>
+        <img
+          src={`${import.meta.env.BASE_URL}nexus-logo-blue.png`}
+          alt="NEXUS"
+          className="mx-auto h-14 w-14 rounded-2xl object-cover"
+        />
 
         <h1 className="mt-6 text-3xl font-black">
           NEXUS <span className="text-[#0390fc]">Desktop</span>

@@ -17,6 +17,7 @@ type AppSidebarProps = {
   profile: SettingsProfile | null
   onLogout: () => void
   loggingOut: boolean
+  onCreateGroup: () => void
 }
 
 export default function AppSidebar({
@@ -30,6 +31,7 @@ export default function AppSidebar({
   userId,
   onSelectConversation,
   profile,
+  onCreateGroup,
 }: AppSidebarProps) {
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-[#292a30] bg-[#1e1f24]">
@@ -58,9 +60,20 @@ export default function AppSidebar({
           )}
         </button>
 
-        <p className="mb-2 mt-7 px-2 text-xs font-bold uppercase tracking-wider text-gray-500">
-          Direct Messages
-        </p>
+        <div className="mb-2 mt-7 flex items-center justify-between px-2">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+            Your Conversations
+          </p>
+          <button
+            type="button"
+            onClick={onCreateGroup}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-lg text-gray-400 hover:bg-[#34353d] hover:text-white"
+            aria-label="Create group"
+            title="Create group"
+          >
+            +
+          </button>
+        </div>
 
         <ConversationList
           conversations={conversations}
@@ -86,13 +99,22 @@ export default function AppSidebar({
               className="truncate text-xs text-gray-400 hover:cursor-pointer hover:text-white"
               onClick={async () => {
                 if (profile) {
-                  await navigator.clipboard.writeText(`${profile.username}`)
-                  void showAlert({
-                    title: 'Username copied',
-                    message: `@${profile.username} was copied to your clipboard.`,
-                    type: 'success',
-                    confirmText: 'Alright',
-                  })
+                  try {
+                    await navigator.clipboard.writeText(`${profile.username}`)
+                    void showAlert({
+                      title: 'Username copied',
+                      message: `@${profile.username} was copied to your clipboard.`,
+                      type: 'success',
+                      confirmText: 'Alright',
+                    })
+                  } catch {
+                    void showAlert({
+                      title: 'Clipboard unavailable',
+                      message: 'NEXUS could not copy the username. Please try again.',
+                      type: 'error',
+                      confirmText: 'Got it',
+                    })
+                  }
                 }
               }}
             >

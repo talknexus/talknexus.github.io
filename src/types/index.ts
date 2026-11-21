@@ -28,9 +28,20 @@ export interface SettingsProfile {
 
 export interface Conversation {
   id: string
-  user1_id: string
-  user2_id: string
+  user1_id: string | null
+  user2_id: string | null
   created_at: string
+  is_group: boolean
+  name: string | null
+  avatar_url: string | null
+  owner_id: string | null
+}
+
+export interface ConversationMember {
+  conversation_id: string
+  user_id: string
+  role: 'owner' | 'member'
+  joined_at: string
 }
 
 export interface DmMessage {
@@ -50,4 +61,7 @@ export interface ConversationEntry {
   conversation: Conversation
   profile: Profile
   lastMessage: DmMessage | null
+  members?: Profile[]
+  memberRoles?: Record<string, 'owner' | 'member'>
+  senderProfiles?: Record<string, Profile>
 }

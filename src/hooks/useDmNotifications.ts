@@ -70,7 +70,7 @@ export default function useDmNotifications({
     const receivedDuringLoad: MessageEvent[] = []
 
     const channel = supabase
-      .channel(`dm-notifications-${userId}`)
+      .channel(`conversation-notifications-${userId}`)
       .on(
         'postgres_changes',
         {

@@ -13,6 +13,7 @@ import AppSidebar from '../components/AppSidebar'
 import FriendsPage from '../components/FriendsPage'
 import ChatsPage from '../components/ChatsPage'
 import AddFriendModal from '../components/AddFriendModal'
+import CreateGroupModal from '../components/CreateGroupModal'
 
 import type {
   Profile,
@@ -39,6 +40,7 @@ function AppHome() {
 
   const [showAddFriend, setShowAddFriend] = useState(false)
   const [friendUsername, setFriendUsername] = useState('')
+  const [showCreateGroup, setShowCreateGroup] = useState(false)
 
   const [pageError, setPageError] = useState('')
 
@@ -106,6 +108,23 @@ function AppHome() {
   const activeConversation = conversations.find(
     (entry) => entry.conversation.id === activeConversationId,
   )
+
+  useEffect(() => {
+    if (
+      activeConversationId &&
+      !loadingConversations &&
+      conversations.length > 0 &&
+      !activeConversation
+    ) {
+      window.queueMicrotask(clearActiveConversation)
+    }
+  }, [
+    activeConversation,
+    activeConversationId,
+    clearActiveConversation,
+    conversations.length,
+    loadingConversations,
+  ])
 
   const {
     reactions,
@@ -209,6 +228,28 @@ function AppHome() {
           loadConversations(userId)
         },
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'dm_conversations',
+        },
+        () => {
+          loadConversations(userId)
+        },
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversation_members',
+        },
+        () => {
+          loadConversations(userId)
+        },
+      )
       .subscribe()
 
     return () => {
@@ -305,6 +346,7 @@ function AppHome() {
 
       <AppSidebar
         activePage={activePage}
+        onCreateGroup={() => setShowCreateGroup(true)}
         onNavigate={(page) => {
           setActivePage(page)
 
@@ -376,6 +418,18 @@ function AppHome() {
           />
         )}
       </main>
+
+      <CreateGroupModal
+        open={showCreateGroup}
+        friends={friends}
+        onClose={() => setShowCreateGroup(false)}
+        onCreated={(conversationId) => {
+          setShowCreateGroup(false)
+          setActiveConversationId(conversationId)
+          setActivePage('chats')
+          void loadConversations(userId)
+        }}
+      />
 
       <AddFriendModal
         open={showAddFriend}
